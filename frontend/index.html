@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+  body {
+    background: #f5f7fa;
+    font-family: Arial;
+  }
+
+  h1 {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  /* 🔥 CENTER WRAPPER */
+  .main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* CENTER HORIZONTALLY */
+  }
+
+  /* 🔥 CARD STYLE */
+  .container {
+    width: 400px;  
+    max-width: 90%;        /* CONTROL WIDTH */
+    margin: 20px auto;     /* CENTER */
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 0 12px #ccc;
+    text-align: center;    /* CENTER TEXT */
+  }
+
+  table {
+    margin: 10px auto;     /* CENTER TABLE */
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <a href="login.html">Login</a>
+  <a href="register.html">Register</a>
+</div>
+
+<h1 style="text-align:center;">CardioPredict</h1>
+
+<!-- ✅ STATS -->
+<div class="container">
+  <h2>Stats</h2>
+  <p>Total Users: <span id="users"></span></p>
+  <p>Total Predictions: <span id="predictions"></span></p>
+</div>
+
+<!-- ✅ MODEL PERFORMANCE -->
+<div class="container">
+  <h2>Model Performance</h2>
+
+  <p><b>Model:</b> <span id="model"></span></p>
+  <p><b>Accuracy:</b> <span id="accuracy"></span></p>
+  <p><b>Precision:</b> <span id="precision"></span></p>
+  <p><b>Recall:</b> <span id="recall"></span></p>
+  <p><b>F1 Score:</b> <span id="f1"></span></p>
+
+  <h3>Confusion Matrix</h3>
+  <table id="cmTable"></table>
+</div>
+
+<script>
+/* 🔥 LOAD STATS */
+async function loadStats() {
+  try {
+    const res = await fetch("http://127.0.0.1:5000/stats");
+    const data = await res.json();
+
+    document.getElementById("users").innerText = data.users;
+    document.getElementById("predictions").innerText = data.predictions;
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/* 🔥 LOAD METRICS */
+async function loadMetrics() {
+  try {
+    const res = await fetch("http://127.0.0.1:5000/model-metrics");
+    const data = await res.json();
+
+    document.getElementById("model").innerText = data.model;
+    document.getElementById("accuracy").innerText = (data.accuracy * 100).toFixed(2) + "%";
+    document.getElementById("precision").innerText = data.precision.toFixed(2);
+    document.getElementById("recall").innerText = data.recall.toFixed(2);
+    document.getElementById("f1").innerText = data.f1_score.toFixed(2);
+
+    const cm = data.confusion_matrix;
+    const table = document.getElementById("cmTable");
+
+    table.innerHTML = `
+      <tr>
+        <th></th>
+        <th>Predicted No</th>
+        <th>Predicted Yes</th>
+      </tr>
+      <tr>
+        <th>Actual No</th>
+        <td>${cm[0][0]}</td>
+        <td>${cm[0][1]}</td>
+      </tr>
+      <tr>
+        <th>Actual Yes</th>
+        <td>${cm[1][0]}</td>
+        <td>${cm[1][1]}</td>
+      </tr>
+    `;
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/* 🔥 INIT */
+loadStats();
+loadMetrics();
+</script>
+
+</body>
+</html>

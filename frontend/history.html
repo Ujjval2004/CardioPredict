@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    .High\ Risk { color: red; font-weight: bold; }
+    .Medium\ Risk { color: orange; font-weight: bold; }
+    .Low\ Risk { color: green; font-weight: bold; }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* 🔥 Chart container */
+    .chart-container {
+      width: 400px;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <a href="predict.html">Predict</a>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<h2 style="text-align:center;">Prediction History</h2>
+
+<!-- ✅ CHART -->
+<div class="chart-container">
+  <h3 style="text-align:center;">Risk Distribution</h3>
+  <canvas id="riskChart"></canvas>
+</div>
+
+<table id="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Result</th>
+      <th>Probability</th>
+      <th>Created At</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<div class="pagination">
+  <button onclick="prev()">Prev</button>
+  <span id="pageNo">1</span>
+  <button onclick="next()">Next</button>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+let page = 1;
+const limit = 5;
+let chart = null; // 🔥 to avoid duplicate charts
+
+async function load() {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      window.location.href = "login.html";
+      return;
+    }
+
+    const res = await fetch(`http://127.0.0.1:5000/history?page=${page}&limit=${limit}`, {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    // 🔥 IMPORTANT FIX
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Backend error:", errText);
+      alert("Unauthorized or server error");
+      return;
+    }
+
+    const data = await res.json();
+
+    console.log("API DATA:", data);
+
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+
+    let low = 0, medium = 0, high = 0;
+
+    // 🔥 FIX: SAFE ACCESS
+    const items = data.data || data;
+
+    items.forEach(item => {
+      let risk = item.result;
+
+      if (risk.toLowerCase().includes("low")) low++;
+      else if (risk.toLowerCase().includes("medium")) medium++;
+      else if (risk.toLowerCase().includes("high")) high++;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.id}</td>
+          <td class="${risk}">${risk}</td>
+          <td>${parseFloat(item.probability).toFixed(2)}%</td>
+          <td>${item.created_at}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("pageNo").innerText = page;
+
+    renderChart(low, medium, high);
+
+  } catch (err) {
+    console.error("Frontend error:", err);
+    alert("Failed to load history");
+  }
+}
+
+// 🔥 CHART FUNCTION
+function renderChart(low, medium, high) {
+
+  const ctx = document.getElementById("riskChart");
+
+  // destroy old chart if exists
+  if (chart) {
+    chart.destroy();
+  }
+
+  chart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Low Risk", "Medium Risk", "High Risk"],
+      datasets: [{
+        data: [low, medium, high],
+        backgroundColor: ["green", "orange", "red"]
+      }]
+    },
+    options: {
+      responsive: true
+    }
+  });
+}
+
+function next() {
+  page++;
+  load();
+}
+
+function prev() {
+  if (page > 1) {
+    page--;
+    load();
+  }
+}
+
+// 🔥 INITIAL LOAD
+load();
+</script>
+
+</body>
+</html>

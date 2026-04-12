@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+  <a href="register.html">Register</a>
+</div>
+
+<h2>Login</h2>
+
+<div class="container">
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+</div>
+
+<script src="script.js"></script>
+<script>
+async function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  if (!username || !password) {
+    alert("enter all fields");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    });
+
+    const data = await res.json();
+    console.log(data); // DEBUG
+
+    if (res.status === 200) {
+      localStorage.setItem("token", data.access_token);
+      alert("Login successful");
+      window.location.href = "predict.html";
+    } else {
+      alert("invalid credentials");
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("backend not reachable");
+  }
+}
+</script>
+
+</body>
+</html>

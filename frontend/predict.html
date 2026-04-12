@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background: #f5f7fa;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .form-grid input {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 30px;
+      font-size: 16px;
+      border-radius: 6px;
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    .result-box {
+      width: 100%;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+      font-size: 18px;
+      text-align: left;
+      white-space: pre-line;
+    }
+
+    .high { color: red; }
+    .medium { color: orange; }
+    .low { color: green; }
+  </style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <a href="history.html">History</a>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<h2>Heart Disease Prediction</h2>
+
+<div class="form-grid">
+  <input id="age" placeholder="Age">
+  <input id="sex" placeholder="Sex">
+  <input id="cp" placeholder="CP">
+  <input id="trestbps" placeholder="Rest BP">
+
+  <input id="chol" placeholder="Cholesterol">
+  <input id="fbs" placeholder="FBS">
+  <input id="restecg" placeholder="Rest ECG">
+  <input id="thalach" placeholder="Thalach">
+
+  <input id="exang" placeholder="Exang">
+  <input id="oldpeak" placeholder="Oldpeak">
+  <input id="slope" placeholder="Slope">
+  <input id="ca" placeholder="CA">
+
+  <input id="thal" placeholder="Thal">
+</div>
+
+<div class="btn-container">
+  <button onclick="predict()">Predict</button>
+</div>
+
+<div id="resultBox" class="result-box" style="display:none;"></div>
+
+<script>
+const fields = [
+  "age","sex","cp","trestbps","chol","fbs",
+  "restecg","thalach","exang","oldpeak",
+  "slope","ca","thal"
+];
+
+async function predict() {
+
+  let data = {};
+
+  for (let f of fields) {
+    const val = document.getElementById(f).value;
+    if (!val) {
+      alert("enter all values");
+      return;
+    }
+    data[f] = val;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://127.0.0.1:5000/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    console.log("API RESPONSE:", result); // ✅ DEBUG
+
+    // ❌ DO NOT override backend
+    if (!result.risk) {
+      alert("Backend error: risk not returned");
+      return;
+    }
+
+    showResult(result);
+
+    localStorage.setItem("lastPrediction", JSON.stringify(result));
+    localStorage.setItem("lastInputs", JSON.stringify(data));
+
+  } catch (err) {
+    console.error(err);
+    alert("prediction failed");
+  }
+}
+
+function showResult(result) {
+  const box = document.getElementById("resultBox");
+  box.style.display = "block";
+
+  // ✅ Convert to %
+  const probPercent = (result.probability * 100).toFixed(2);
+
+  let explanationText = "Not available";
+  if (result.explanation && Array.isArray(result.explanation)) {
+    explanationText = result.explanation.join("\n- ");
+  }
+
+  box.innerText = `
+Probability: ${probPercent}%
+Risk: ${result.risk}
+
+Top Factors:
+- ${explanationText}
+`;
+
+  // ✅ Color logic
+  const risk = result.risk.toLowerCase();
+
+  if (risk.includes("high"))
+    box.className = "result-box high";
+  else if (risk.includes("medium"))
+    box.className = "result-box medium";
+  else
+    box.className = "result-box low";
+}
+
+// Restore previous data
+window.onload = () => {
+
+  const savedInputs = localStorage.getItem("lastInputs");
+  if (savedInputs) {
+    const inputs = JSON.parse(savedInputs);
+    for (let f of fields) {
+      if (inputs[f]) {
+        document.getElementById(f).value = inputs[f];
+      }
+    }
+  }
+
+  const savedResult = localStorage.getItem("lastPrediction");
+  if (savedResult) {
+    showResult(JSON.parse(savedResult));
+  }
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="navbar">
+  <a href="login.html">Login</a>
+</div>
+
+<h2>Register</h2>
+
+<div class="container">
+  <input id="name" placeholder="Name">
+  <input id="username" placeholder="Username">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <input id="role" placeholder="Role">
+
+  <button onclick="register()">Register</button>
+</div>
+
+<script src="script.js"></script>
+<script>
+async function register() {
+  console.log("Register clicked"); // 🔥 DEBUG
+
+  const name = document.getElementById("name").value;
+  const username = document.getElementById("username").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const role = document.getElementById("role").value;
+
+  if (!name || !username || !email || !password || !role) {
+    alert("enter all fields");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, username, email, password, role })
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if (res.status === 409) {
+      alert("user already registered");
+    } else if(res.status===201|| res.status===200) {
+      alert("user registered successfully");
+    } else{
+      alert(data.message)
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("backend not reachable");
+  }
+}
+</script>
+
+</body>
+</html>
