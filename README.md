@@ -7,7 +7,7 @@ A full-stack machine learning web application that predicts the risk of heart di
 ## 🚀 Features
 
 -  User Authentication (JWT-based login/register)
-- Compared Machine Learning Models(Tandom Forest, Logistic Regression and Decision Tree)
+- Compared Machine Learning Models(Random Forest, Logistic Regression and Decision Tree)
 - Choose Random Forest Model as it had the most Accuracy and most Recall.
 -  Machine Learning Model (Random Forest)
 -  Risk Prediction (Low / Medium / High)
