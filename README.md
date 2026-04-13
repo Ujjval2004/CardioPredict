@@ -69,5 +69,23 @@ CardioPredict/
 
 Screenshots:-
 <img width="1895" height="874" alt="image" src="https://github.com/user-attachments/assets/f6b41efc-3f57-49d6-b88e-762bb6058547" />
+Home page
+
+<img width="1853" height="370" alt="image" src="https://github.com/user-attachments/assets/5ee0c989-d097-49e7-a406-7f779e87dd4e" />
+Model Comparision Table
+
+<img width="1913" height="865" alt="image" src="https://github.com/user-attachments/assets/2d5171e5-1094-43b5-be47-de77d4fd022f" />
+Login page
+
+<img width="1920" height="860" alt="image" src="https://github.com/user-attachments/assets/598a7829-ec3d-4271-9c13-825ad08a08ca" />
+Register page
+
+<img width="1915" height="860" alt="image" src="https://github.com/user-attachments/assets/db567d7f-5e9b-4cd5-95bb-9c7b205f87af" />
+Predict Page
+
+View predictions page
+<img width="1897" height="863" alt="image" src="https://github.com/user-attachments/assets/6e45957a-bcce-46f3-82f1-f9c4222250c8" />
+
+
 
 
