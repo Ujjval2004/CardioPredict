@@ -6,19 +6,21 @@ A full-stack machine learning web application that predicts the risk of heart di
 
 ## 🚀 Features
 
-- 🔐 User Authentication (JWT-based login/register)
-- 🧠 Machine Learning Model (Random Forest)
-- 📊 Risk Prediction (Low / Medium / High)
-- 📈 Model Performance Metrics (Accuracy, Precision, Recall, F1 Score)
-- 📉 Confusion Matrix Visualization
-- 📊 Pie Chart for Risk Distribution
-- 🧾 Prediction History with Pagination
-- 🔍 Explainable AI (Top factors influencing prediction)
-- 💾 Database storage (SQLite)
+-  User Authentication (JWT-based login/register)
+- Compared Machine Learning Models(Tandom Forest, Logistic Regression and Decision Tree)
+- Choose Random Forest Model as it had the most Accuracy and most Recall.
+-  Machine Learning Model (Random Forest)
+-  Risk Prediction (Low / Medium / High)
+-  Model Performance Metrics (Accuracy, Precision, Recall, F1 Score)
+-  Confusion Matrix Visualization
+-  Pie Chart for Risk Distribution
+-  Prediction History with Pagination
+-  Explainable AI (Top factors influencing prediction)
+-  Database storage (SQLite)
 
 ---
 
-## 🧠 Machine Learning
+##  Machine Learning
 
 - Model: Random Forest Classifier  
 - Accuracy: ~83.6%  
