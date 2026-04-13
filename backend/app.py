@@ -1,5 +1,6 @@
 import os
 import pickle
+import json
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
@@ -23,25 +24,20 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
-
-    # ✅ Enable CORS
     CORS(app)
 
-    # ---------------- BASE DIRECTORY ---------------- #
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    # ---------------- SECRET KEYS ---------------- #
+    # ---------------- CONFIG ---------------- #
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
-    # ---------------- DATABASE ---------------- #
     db_path = os.path.join(BASE_DIR, "instance", "cardiopredict.db")
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # ---------------- JWT ---------------- #
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = int(
         os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 4500)
     )
@@ -49,7 +45,7 @@ def create_app():
     db.init_app(app)
     JWTManager(app)
 
-    # ---------------- CREATE TABLES ---------------- #
+    # ---------------- DB INIT ---------------- #
     with app.app_context():
         db.create_all()
         print("Database tables created successfully")
@@ -72,36 +68,49 @@ def create_app():
 
     # ---------------- ROUTES ---------------- #
 
-    # ✅ HOME
     @app.route("/")
     def home():
         return {"message": "CardioPredict API Running Successfully"}
 
-    # ✅ STATS
     @app.route("/stats", methods=["GET"])
     def stats():
-        total_users = User.query.count()
-        total_predictions = Prediction.query.count()
-
         return jsonify({
-            "users": total_users,
-            "predictions": total_predictions
+            "users": User.query.count(),
+            "predictions": Prediction.query.count()
         })
 
-    # ✅ MODEL METRICS (🔥 NEW)
+    # ✅ LOAD METRICS FROM FILE
     @app.route("/model-metrics", methods=["GET"])
     def model_metrics():
+        metrics_path = os.path.join(BASE_DIR, "ml", "metrics.json")
+
+        if not os.path.exists(metrics_path):
+            return jsonify({"error": "Metrics not found. Train model first."}), 404
+
+        with open(metrics_path, "r") as f:
+            data = json.load(f)
+
         return jsonify({
-            "model": "Random Forest",
-            "accuracy": 0.836,
-            "precision": 0.78,
-            "recall": 0.97,
-            "f1_score": 0.86,
-            "confusion_matrix": [
-                [19, 9],
-                [1, 32]
-            ]
+            "model": data["best_model"],
+            "accuracy": data["best_metrics"]["accuracy"],
+            "precision": data["best_metrics"]["precision"],
+            "recall": data["best_metrics"]["recall"],
+            "f1_score": data["best_metrics"]["f1"],
+            "confusion_matrix": data["best_metrics"]["confusion_matrix"]
         })
+
+    # ✅ FULL COMPARISON API
+    @app.route("/model-comparison", methods=["GET"])
+    def model_comparison():
+        metrics_path = os.path.join(BASE_DIR, "ml", "metrics.json")
+
+        if not os.path.exists(metrics_path):
+            return jsonify({"error": "Metrics not found. Train model first."}), 404
+
+        with open(metrics_path, "r") as f:
+            data = json.load(f)
+
+        return jsonify(data)
 
     # ---------------- BLUEPRINTS ---------------- #
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -116,4 +125,5 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
