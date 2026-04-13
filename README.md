@@ -66,3 +66,8 @@ CardioPredict/
 │ ├── train_model.py
 │
 └── README.md
+
+Screenshots:-
+<img width="1895" height="874" alt="image" src="https://github.com/user-attachments/assets/f6b41efc-3f57-49d6-b88e-762bb6058547" />
+
+
