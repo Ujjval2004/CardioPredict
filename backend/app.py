@@ -58,13 +58,13 @@ def create_app():
     model_path = os.path.join(BASE_DIR, "ml", "model.pkl")
 
     if not os.path.exists(model_path):
-        raise FileNotFoundError(f"❌ Model not found at {model_path}")
+        raise FileNotFoundError(f" Model not found at {model_path}")
 
     with open(model_path, "rb") as f:
         model = pickle.load(f)
 
     app.config["MODEL"] = model
-    print("✅ Model loaded successfully")
+    print(" Model loaded successfully")
 
     # ---------------- ROUTES ---------------- #
 
@@ -79,7 +79,7 @@ def create_app():
             "predictions": Prediction.query.count()
         })
 
-    # ✅ LOAD METRICS FROM FILE
+    
     @app.route("/model-metrics", methods=["GET"])
     def model_metrics():
         metrics_path = os.path.join(BASE_DIR, "ml", "metrics.json")
@@ -99,7 +99,7 @@ def create_app():
             "confusion_matrix": data["best_metrics"]["confusion_matrix"]
         })
 
-    # ✅ FULL COMPARISON API
+    
     @app.route("/model-comparison", methods=["GET"])
     def model_comparison():
         metrics_path = os.path.join(BASE_DIR, "ml", "metrics.json")

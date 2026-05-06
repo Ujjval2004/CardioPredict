@@ -9,14 +9,14 @@ from services.prediction_service import make_prediction
 prediction_bp = Blueprint("prediction", __name__)
 
 
-# ✅ SAFE EXPLANATION FUNCTION
+
 def get_explanation(model, input_data):
     try:
         if not hasattr(model, "feature_importances_"):
             return ["Explanation not available"]
 
         importances = model.feature_importances_
-        features = list(model.feature_names_in_)  # ✅ FIXED
+        features = list(model.feature_names_in_)  
 
         pairs = list(zip(features, importances))
         pairs.sort(key=lambda x: x[1], reverse=True)
