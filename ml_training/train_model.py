@@ -77,7 +77,7 @@ for name, model in models.items():
         best_model_name = name
         best_cm = cm
 
-print("\n✅ Best Model Selected:", best_model_name)
+print("\n Best Model Selected:", best_model_name)
 
 # ---------------- SAVE MODEL ---------------- #
 PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
